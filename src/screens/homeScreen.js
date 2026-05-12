@@ -17,9 +17,6 @@ Notifications.setNotificationHandler({
   }),
 });
 
-
-
-
 // Generamos las 24 horas del día
 const HOURS = Array.from({ length: 24 }, (_, i) => `${i < 10 ? '0' + i : i}:00`); //
 
@@ -35,10 +32,20 @@ const HomeScreen = ({ navigation }) => {
   const [taskForm, setTaskForm] = useState({ title: '', desc: '', priority: 'Baja', time: '09:00' });
 
   // Cuando renderizamos, traemos los datos del Storage
- useEffect(() => {
+  useEffect(() => {
     const prepareApp = async () => {
       await fetchData();
       await requestNotificationPermissions();
+      
+      // CONFIGURACIÓN EXTRA PARA ANDROID (IMPORTANTE)
+      if (Platform.OS === 'android') {
+        await Notifications.setNotificationChannelAsync('default', {
+          name: 'default',
+          importance: Notifications.AndroidImportance.MAX,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: '#FF231F7C',
+        });
+      }
     };
     prepareApp();
   }, []);
@@ -50,24 +57,33 @@ const HomeScreen = ({ navigation }) => {
     setTasks(savedTasks || []);
   };
 
-const requestNotificationPermissions = async () => {
+  const requestNotificationPermissions = async () => {
     const { status } = await Notifications.requestPermissionsAsync();
     if (status !== 'granted') {
       Alert.alert("Aviso", "Habilita las notificaciones para recibir recordatorios de tus tareas.");
     }
   };
 
-  const triggerLocalNotification = async (taskTitle) => {
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: "📍 Recordatorio Day One",
-        body: `Registraste esta tarea: ${taskTitle}`,
-      },
-      trigger: { seconds: 5 }, // Se dispara 5 segundos después de guardar solo para que se pueda evaluar el uso
-    });
+  const triggerLocalNotification = async (taskTitle) => { // notificacion a los 5 segundos sobre que se agrego una tarea (es para test no funcional)
+    console.log("LOG: Programando notificación para:", taskTitle);
+    
+    try {
+      // FIX: Agregamos channelId al trigger para cumplir con los requisitos del SDK 53 (problemas de compatibilidad con las versiones de expo)
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "📍 Recordatorio Day One",
+          body: `Registraste esta tarea: ${taskTitle}`,
+          sound: true,
+        },
+        trigger: { 
+          seconds: 5,
+          channelId: 'default', // Esto soluciona el TypeError que te salía
+        }, 
+      });
+    } catch (error) {
+      console.log("Error al programar:", error);
+    }
   };
-
-
 
   const handleLogout = async () => {
     // Aquí podrías limpiar el Storage si fuera necesario
@@ -117,8 +133,25 @@ const requestNotificationPermissions = async () => {
 
     setTasks(updatedTasks); // de esta manera actualizamos la vista
     await StorageService.saveTasks(updatedTasks);
-    await triggerLocalNotification(taskForm.title);
-    setModalVisible(false);
+    
+    // Mostramos el Alert de confirmación y LUEGO cerramos el modal
+    Alert.alert(
+      "Éxito", 
+      "Tarea guardada correctamente",
+      [
+        { 
+          text: "OK", 
+          onPress: () => {
+            setModalVisible(false); // Cerramos el modal para volver al home
+            
+            // Disparamos la notificación (con un pequeño delay para evitar bugs visuales)
+            setTimeout(() => {
+                triggerLocalNotification(taskForm.title);
+            }, 500);
+          } 
+        }
+      ]
+    );
   };
 
   const deleteTask = async (id) => {
@@ -271,25 +304,20 @@ const styles = StyleSheet.create({
   greeting: { fontSize: 24, fontFamily: Theme.fonts.title, color: '#FFF' },
   logoutBtn: { backgroundColor: 'rgba(255,255,255,0.2)', padding: 8, borderRadius: 10 },
   logoutText: { color: '#FFF', fontWeight: 'bold' },
-  
   calendarNav: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 20 },
   monthText: { fontSize: 18, color: '#FFF', fontWeight: 'bold', marginHorizontal: 20, textTransform: 'capitalize' },
   arrow: { fontSize: 24, color: '#FFF' },
-  
   daysScroll: { marginTop: 15, paddingLeft: 20 },
   dayItem: { width: 50, height: 70, justifyContent: 'center', alignItems: 'center', marginRight: 15, borderRadius: 15 },
-  dayItemSelected: { backgroundColor: '#1D3557' }, // Azul oscuro cuando hacés click
+  dayItemSelected: { backgroundColor: '#1D3557' },
   dayLetter: { color: 'rgba(255,255,255,0.6)', fontSize: 12 },
   dayNumber: { color: '#FFF', fontSize: 18, fontWeight: 'bold' },
   textWhite: { color: '#FFF' },
-
   timelineContent: { padding: 25 },
   sectionTitle: { fontSize: 22, fontWeight: 'bold', marginBottom: 20, color: '#1D3557' },
-  
   hourRow: { flexDirection: 'row', marginBottom: 20, minHeight: 60 },
   hourLabel: { width: 60, fontSize: 12, color: '#94A3B8', paddingTop: 5 },
-  slotContent: { flex: 1, borderTopWidth: 1, borderTopColor: '#E2E8F0', paddingVertical: 5 }, //borderTopWidth: 1, línea finita para separar las horas
-  
+  slotContent: { flex: 1, borderTopWidth: 1, borderTopColor: '#E2E8F0', paddingVertical: 5 },
   taskCard: {
     backgroundColor: '#FFF',
     padding: 12,
@@ -302,7 +330,6 @@ const styles = StyleSheet.create({
   },
   taskTitle: { fontWeight: 'bold', fontSize: 14 },
   taskDesc: { fontSize: 12, color: '#64748B' },
-
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 },
   modalCard: { backgroundColor: '#FFF', borderRadius: 25, padding: 25 },
   modalTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 20 },

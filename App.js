@@ -1,20 +1,35 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useCallback } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import * as SplashScreen from 'expo-splash-screen'; //controlar la pantalla de carga para que no se muestre hasta que las fuentes estén listas.
+import { useFonts } from 'expo-font'; // cargamos las fuentes
+import { AlfaSlabOne_400Regular } from '@expo-google-fonts/alfa-slab-one';
+import { Montserrat_400Regular, Montserrat_700Bold } from '@expo-google-fonts/montserrat';
+
+// Importamos nuestro navegador
+import AppNavigator from './src/navigation/AppNavigator';
+
+SplashScreen.preventAutoHideAsync(); // cargar la pantalla solo hasta que las fuenten esten listas.
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    //booleano si es true las fuentes estan listas y podemos renderizar.
+    'AlfaSlabOne': AlfaSlabOne_400Regular, 
+    'Montserrat_Regular': Montserrat_400Regular,
+    'Montserrat_Bold': Montserrat_700Bold,
+  });
+
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]); // ultimo paso de verificacion para ver si las fuentes estan listas, si lo estan ocultamos la pantalla de carga.
+
+  if (!fontsLoaded) return null;
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    //El NavigationContainer envuelve toda la app para que funcione el paso de pantallas
+    <NavigationContainer onReady={onLayoutRootView}>
+      <AppNavigator />
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

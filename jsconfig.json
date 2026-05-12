@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "checkJs": false,
+    "ignoreDeprecations": "6.0",
+    "baseUrl": "./",
+    "paths": {
+      "*": ["src/*"]
+    }
+  },
+  "exclude": ["node_modules", ".expo", ".expo-shared"]
+}

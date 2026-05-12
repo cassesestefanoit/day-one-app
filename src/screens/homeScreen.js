@@ -6,6 +6,19 @@ import {
 import { StorageService } from '../services/storageService';
 import { Theme } from '../theme/theme';
 import ActionButton from '../components/ActionButton';
+import * as Notifications from 'expo-notifications';
+
+// CONFIGURACIÓN DE NOTIFICACIONES 
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
+
+
+
 
 // Generamos las 24 horas del día
 const HOURS = Array.from({ length: 24 }, (_, i) => `${i < 10 ? '0' + i : i}:00`); //
@@ -22,8 +35,12 @@ const HomeScreen = ({ navigation }) => {
   const [taskForm, setTaskForm] = useState({ title: '', desc: '', priority: 'Baja', time: '09:00' });
 
   // Cuando renderizamos, traemos los datos del Storage
-  useEffect(() => {
-    fetchData();
+ useEffect(() => {
+    const prepareApp = async () => {
+      await fetchData();
+      await requestNotificationPermissions();
+    };
+    prepareApp();
   }, []);
 
   const fetchData = async () => {
@@ -32,6 +49,25 @@ const HomeScreen = ({ navigation }) => {
     setUser(userData);
     setTasks(savedTasks || []);
   };
+
+const requestNotificationPermissions = async () => {
+    const { status } = await Notifications.requestPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert("Aviso", "Habilita las notificaciones para recibir recordatorios de tus tareas.");
+    }
+  };
+
+  const triggerLocalNotification = async (taskTitle) => {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "📍 Recordatorio Day One",
+        body: `Registraste esta tarea: ${taskTitle}`,
+      },
+      trigger: { seconds: 5 }, // Se dispara 5 segundos después de guardar solo para que se pueda evaluar el uso
+    });
+  };
+
+
 
   const handleLogout = async () => {
     // Aquí podrías limpiar el Storage si fuera necesario
@@ -81,6 +117,7 @@ const HomeScreen = ({ navigation }) => {
 
     setTasks(updatedTasks); // de esta manera actualizamos la vista
     await StorageService.saveTasks(updatedTasks);
+    await triggerLocalNotification(taskForm.title);
     setModalVisible(false);
   };
 

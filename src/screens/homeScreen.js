@@ -222,7 +222,7 @@ const HomeScreen = ({ navigation }) => {
               </View>
 
               <View style={styles.hardwareSection}>
-                {/* 🖼️ Render de Miniatura */}
+                {/*  Render de Miniatura */}
                 {taskForm.image && (
                   <View style={styles.imagePreviewContainer}>
                     <Image
@@ -238,7 +238,7 @@ const HomeScreen = ({ navigation }) => {
                   </View>
                 )}
 
-                {/* 📍 Render Ubicación */}
+                {/*  Render Ubicación */}
                 {taskForm.location && (
                   <View style={styles.locationContainer}>
                     <Feather name="map-pin" size={16} color="#4CAF50" />
@@ -269,7 +269,7 @@ const HomeScreen = ({ navigation }) => {
                   </View>
                 )}
 
-                {/* 👤 Render Contacto */}
+                {/* Render Contacto */}
                 {taskForm.contact && (
                   <View style={styles.contactContainer}>
                     <Feather name="user" size={16} color="#35BFED" />
@@ -293,7 +293,7 @@ const HomeScreen = ({ navigation }) => {
                   </View>
                 )}
 
-                {/* ⏰ Render Alarma */}
+                {/*  Render Alarma */}
                 {Boolean(taskForm.alarmSet) && (
                   <View style={styles.alarmBadgeContainer}>
                     <View style={styles.alarmBadgeLeft}>

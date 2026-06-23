@@ -20,14 +20,13 @@ const createCalendarAlarm = async (chosenDate, taskForm, setTaskForm) => {
     } else {
       const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
       
-      // LOG DE CONTROL: Para ver en tu terminal los calendarios disponibles en tu Xiaomi
+     
       console.log("=== CALENDARIOS DETECTADOS ===");
       calendars.forEach(cal => {
         console.log(`ID: ${cal.id} | Name: ${cal.name} | Type: ${cal.accountType} | Primary: ${cal.isPrimary}`);
       });
 
-      // Selección inteligente para evitar el calendario "mudo" local de MIUI:
-      // Prioriza Google Calendar, sino el primario del sistema, sino el primero de la lista.
+      
       const targetCalendar = 
         calendars.find(cal => cal.accountType === 'com.google') || 
         calendars.find(cal => cal.isPrimary) || 
@@ -42,15 +41,15 @@ const createCalendarAlarm = async (chosenDate, taskForm, setTaskForm) => {
       defaultCalendarId = targetCalendar.id;
     }
 
-    // El evento durará 30 minutos en la agenda
+    
     const endDate = new Date(chosenDate.getTime() + 30 * 60 * 1000);
 
-    // Formateamos la hora exacta elegida en formato HH:MM para mostrar en el badge
+    
     const hoursStr = chosenDate.getHours().toString().padStart(2, '0');
     const minutesStr = chosenDate.getMinutes().toString().padStart(2, '0');
     const exactTimeStr = `${hoursStr}:${minutesStr}`;
 
-    // 3. Crear el evento en el calendario real con canal de sonido activo
+    
     const eventId = await Calendar.createEventAsync(defaultCalendarId, {
       title: `⏰ DayOne: ${taskForm.title || 'Recordatorio'}`,
       startDate: chosenDate,
@@ -60,7 +59,7 @@ const createCalendarAlarm = async (chosenDate, taskForm, setTaskForm) => {
       alarms: [{ relativeOffset: 0, method: Calendar.AlarmMethod.SOUND }],
     });
 
-    // 4. Guardamos el estado con la hora exacta real (ej: 06:25)
+    
     if (typeof setTaskForm === 'function') {
       setTaskForm({
         ...taskForm,
@@ -78,26 +77,26 @@ const createCalendarAlarm = async (chosenDate, taskForm, setTaskForm) => {
   }
 };
 
-// --- FUNCIÓN PRINCIPAL QUE DISPARA EL BOTÓN ---
+
 export const handleSyncCalendar = async (taskForm, setTaskForm) => {
   if (!taskForm.time) {
     Alert.alert("Atención", "Falta el horario base de la tarea.");
     return;
   }
 
-  // Preparamos la fecha base usando el slot actual
+  
   const [hour, minute] = taskForm.time.split(':');
   const baseDate = new Date();
   baseDate.setHours(parseInt(hour, 10));
   baseDate.setMinutes(parseInt(minute, 10));
   baseDate.setSeconds(0);
 
-  // Si la hora del slot ya pasó hoy, asumimos que es para mañana
+ 
   if (baseDate < new Date()) {
     baseDate.setDate(baseDate.getDate() + 1);
   }
 
-  // Si es Android, disparamos el reloj flotante nativo
+  
   if (Platform.OS === 'android') {
     DateTimePickerAndroid.open({
       value: baseDate,
@@ -111,12 +110,12 @@ export const handleSyncCalendar = async (taskForm, setTaskForm) => {
       },
     });
   } else {
-    // Para iOS o fallback rápido
+  
     createCalendarAlarm(baseDate, taskForm, setTaskForm);
   }
 };
 
-// --- FUNCIÓN PARA ELIMINAR EL EVENTO ---
+
 export const handleDeleteCalendarEvent = async (taskForm, setTaskForm) => {
   if (!taskForm.calendarEventId) return;
   try {

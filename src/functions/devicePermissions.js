@@ -5,7 +5,7 @@ import * as Contacts from 'expo-contacts';
 import * as Calendar from 'expo-calendar';
 
 export const DevicePermissions = {
-  // 📸 Permiso de Cámara y Galería
+  //  Permiso de Cámara y Galería
   requestCameraPermissions: async () => {
     const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();
     const libraryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -20,7 +20,7 @@ export const DevicePermissions = {
     return true;
   },
 
-  // 📍 Permiso de Ubicación (GPS)
+  // Permiso de Ubicación (GPS)
   requestLocationPermissions: async () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
@@ -33,7 +33,7 @@ export const DevicePermissions = {
     return true;
   },
 
-  // 👤 Permiso de Contactos
+  // Permiso de Contactos
   requestContactsPermissions: async () => {
     const { status } = await Contacts.requestPermissionsAsync();
     if (status !== 'granted') {
@@ -46,7 +46,7 @@ export const DevicePermissions = {
     return true;
   },
 
-  // 📅 Permiso de Calendario Nativo
+  //  Permiso de Calendario Nativo
   requestCalendarPermissions: async () => {
     const calendarStatus = await Calendar.requestCalendarPermissionsAsync();
     // En iOS se suele requerir también el permiso de recordatorios

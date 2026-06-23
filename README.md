@@ -25,28 +25,33 @@
 
 ---
 
-## Suite de Tests Unitarios
+## 🤖 Punto Extra: IA Aplicada al Desarrollo
 
-La aplicación cuenta con una cobertura de pruebas unitarias enfocada en la lógica pura de negocio y consistencia, evitando dependencias del ciclo de vida asíncrono del renderizador de componentes nativos:
+Como parte del valor agregado en el desarrollo de **DayOneApp**, se incorporaron herramientas de Inteligencia Artificial para la aceleración del código, el rediseño de interfaces complejas y el destrabe del entorno de pruebas unitarias.
 
-1.  `calendarUtils.test.js`: Validación de algoritmos de cálculo de días y meses.
-2.  `taskStore.test.js`: Verificación de la inmutabilidad y acciones del estado global (Zustand).
-3.  `CustomInput.test.js` & `locationHandler.test.js`: Pruebas de consistencia de tipado de datos y formateo de URLs de geolocalización.
+### 1. Herramientas y Plugins Utilizados
+* **Asistente de IA Principal:** Gemini (Google) utilizado como consultor de arquitectura, refactorización y debugging.
+* **Entorno de Integración:** Terminal de VS Code y prompts estructurados para el análisis de errores de dependencias nativas en entornos simulados.
 
-Para correr los tests en tu máquina ejecuta:
-```bash
-npm test
+### 2. Ejemplos de Prompts Aplicados (Efectividad y Restricciones)
 
-##  Punto Extra: IA Aplicada al Desarrollo
-
-Para potenciar el desarrollo, la arquitectura, el diseño y el proceso de testing de **DayOneApp**, se incorporó asistencia avanzada mediante Inteligencia Artificial (LLM) utilizando **Gemini / ChatGPT**. A continuación se documentan los enfoques y los prompts clave aplicados:
-
-### 1. Prompts Efectivos Aplicados (Ejemplos)
-
->  **Contexto de Rediseño Estético (Calendario Dinámico):**
+> 🎨 **Contexto de Rediseño Estético (Calendario Dinámico):**
 > * **Prompt:** *"Actuá como un diseñador UI/UX experto en React Native. Tengo un componente de calendario básico que renderiza los días del mes en texto plano y vertical, lo cual es dificultoso y poco intuitivo para el cliente. Necesito transformarlo en una barra horizontal deslizable (`ScrollView` horizontal). Cada día debe ser una tarjeta con bordes redondeados que muestre el día de la semana arriba y el número abajo. Si el día está seleccionado, debe resaltar con un fondo oscuro (`#1D3557`) y el texto en blanco, y el resto de los días deben verse sutiles. Dame el código estructurado con StyleSheet optimizado."*
-> * **Resultado:** Se logró la maquetación limpia y scannable de la barra de días que quedó integrada en el `HomeScreen`.
+> * **Resultado:** Maquetación limpia, scannable y adaptada a la identidad visual de la app, integrada exitosamente en `HomeScreen`.
 
->  **Contexto de Debugging y Cobertura de Tests (Jest):**
+> 🧪 **Contexto de Debugging y Cobertura de Tests (Jest):**
 > * **Prompt:** *"Estoy configurando Jest con `jest-expo` en React Native. Al intentar hacer un test unitario tradicional del store de Zustand y de funciones que manejan fechas, el entorno de pruebas me tira errores de ciclo de vida nativos porque intenta renderizar componentes del core de Expo. Necesito aislar la lógica de negocio. Escribime una suite de pruebas unitarias puras que use mocks para validar el cambio de meses en `calendarUtils` y las mutaciones del estado de las tareas sin depender del renderizado asíncrono."*
-> * **Resultado:** Creación de los archivos de prueba en la carpeta `__tests__` que permitieron pasar toda la suite de tests a verde (`PASS`).
+> * **Resultado:** Abstracción del entorno de testing hacia pruebas de consistencia lógica, logrando un 100% de éxito (`PASS`) en la terminal.
+
+---
+
+### 3. Comparación entre el Código Generado Automáticamente y el Integrado
+
+A continuación se detalla la comparativa técnica entre las respuestas en crudo de la IA y las adaptaciones manuales requeridas para la integración final en producción:
+
+| Módulo / Aspecto | Código Generado por IA (Crudo) | Código Final Integrado en la App |
+| :--- | :--- | :--- |
+| **Estética del Calendario** | Proporcionó un diseño de tarjetas estático con dimensiones fijas en píxeles. | Se envolvió en un `ScrollView` horizontal nativo configurando `showsHorizontalScrollIndicator={false}` y adaptando márgenes dinámicos para que no se corte en pantallas pequeñas. |
+| **Suite de Tests (Jest)** | Intentaba utilizar métodos asíncronos complejos y búsquedas por tipo de componente nativo que crasheaban el motor por falta de hilos de Expo. | Se modificó la estrategia hacia pruebas lógicas puras (Mocks). Se testearon las funciones de `calendarUtils` y el almacenamiento del store (`taskStore`) aislando por completo la UI. |
+| **Ubicación (GPS Handler)** | Generaba una interpolación de strings directa para la URL de Google Maps que arrastraba errores de formato y ceros no válidos. | Se aplicó una sanitización manual con expresiones regulares (`.replace(/^,|,$/g, '')`) para limpiar comas sobrantes y se corrigió la sintaxis de la URL para que sea universal en móviles. |
+| **Manejo de Errores** | Bloques de código con `console.error` genéricos orientados a entorno web. | Se adaptaron las respuestas con alertas interactivas nativas (`Alert.alert`) y fallbacks en texto por si el hardware de geolocalización no responde a tiempo. |

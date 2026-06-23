@@ -13,7 +13,7 @@ const Stack = createNativeStackNavigator();
 export default function AppNavigator() {
   return (
     <Stack.Navigator 
-      initialRouteName="Welcome" //La pantalla de beienvenida va a ser WELCOME.
+      initialRouteName="Welcome" //La pantalla de ruta va a ser WELCOME.
       screenOptions={{
         headerShown: false, // Saco la barra de react que trae por defecto.
       }}

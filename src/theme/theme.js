@@ -8,11 +8,12 @@ export const Theme = {
     error: '#FF5252',
   },
   fonts: {
-
+// Definimos los nombres de las fuentes que importamos de Google Fonts
     title: 'AlfaSlabOne',
     body: 'Montserrat_400Regular',
     bold: 'Montserrat_700Bold',
   },
+  // Medidas estándar para que todo esté alineado
   spacing: {
     padding: 20,
     borderRadius: 25,
